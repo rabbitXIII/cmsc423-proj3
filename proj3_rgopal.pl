@@ -139,8 +139,11 @@ for my $i (1..$length1) {
 
 foreach(@max) {
 	my ($i, $j, $score) = ($_->{i}, $_->{j}, $_->{score});	
+	my @pointers = undef; # tracks the indexes of the sequences
 	my @result = undef;
 	my $index = 0;
+	$pointers[1] = $i;
+	$pointers[3] = $j;	
 		#we need to print backwards into the array since we don't know how many gaps there are
 	while ( ($matrix[$i][$j] != 0) && ($i != 0 || $j != 0)) {
 		$result[1][$index] = " ";
@@ -157,9 +160,11 @@ foreach(@max) {
 		}
 		$index++;
 	}
+	$pointers[0] = $i;
+	$pointers[2] = $j;	
 
 	#print out the score and alignment
-	print_result($index, $score,  @result);
+	print_result($index, $score, $pointers[0]+1, $pointers[1]+1, $pointers[2]+1, $pointers[3]+1,  @result);
 }
 
 #######################################
@@ -179,10 +184,16 @@ sub print_2d {
 sub print_result {
 	my $length = shift;
 	my $score = shift;
+	my $start1 = shift;
+	my $end1 = shift;
+	my $start2 = shift;
+	my $end2 = shift;
 	my @array = @_;
-	my $header1 = $seq_obj1->id . " ";
+	my $header1 = $seq_obj1->id . " " . $start1 . " ";
 	my $header2 = " " x length($header1);
-	my $header3 = $seq_obj2->id . " ";
+	my $header3 = $seq_obj2->id . " " . $start2 . " ";
+	my $footer1 = " " . $end1;
+	my $footer3 = " " . $end2;
 
 	# print the edit distance
 
@@ -197,21 +208,32 @@ sub print_result {
 		$result_line3 .= $array[2][0-$i];
 	}
 	
-	my $remaining_length = 80 - length($header1);
+	my $remaining_length = length($header1) > length($header3) ? 80 - length($header1) - length($footer1) : 80 - length($header3) - length($footer3);
+
+	while( length($header1) < length($header3) ) {
+		$header1 .= " ";
+	}
+
+	while( length($header3) < length($header1) ) { 
+		$header3 .= " ";
+	}
 
 	while (length($header1 . $result_line1) > 80) {
 		print $header1;
-		print substr( $result_line1, 0, $remaining_length) . "\n";
+		print substr( $result_line1, 0, $remaining_length);
+		print $footer1 . "\n";
 		$result_line1 = substr $result_line1, $remaining_length;
 		print $header2;
 		print substr( $result_line2, 0, $remaining_length) . "\n";
 		$result_line2 = substr $result_line2, $remaining_length;
 		print $header3;
-		print substr( $result_line3, 0, $remaining_length) . "\n";
+		print substr( $result_line3, 0, $remaining_length);
+		print $footer3 . "\n";
 		$result_line3 = substr $result_line3, $remaining_length;
 	}
-	print $header1 . $result_line1 . "\n";
+
+	print $header1 . $result_line1 . $footer1 . "\n";
 	print $header2 . $result_line2 . "\n";
-	print $header3 . $result_line3 . "\n";
+	print $header3 . $result_line3 . $footer3 . "\n";
 	
 }	
