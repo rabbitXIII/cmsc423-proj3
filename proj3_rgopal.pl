@@ -29,9 +29,24 @@ my $gap_extend = $ARGV[6];
 my $bio_file1 = Bio::SeqIO->new(-file => $file1);
 my $bio_file2 = Bio::SeqIO->new(-file => $file2);
 
+my $hoxd_handle;
+open($hoxd_handle, $hoxd);
+my @hoxd_lines = <$hoxd_handle>;
+close($hoxd_handle);
 
+# read in the HOXD matrix to a hash
+my %hoxd_scores = (	A => {},
+			T => {},
+			C => {},
+			G => {});
 
-#perform the global alignment
+foreach(@hoxd_lines){ 
+	if($_ =~ /([ACTG]),([ACTG])=(-?\d+)/){
+		$hoxd_scores{$1}{$2} = $3; 	
+	}
+}
+
+#perform the local alignment
 
 my $seq_obj1 = $bio_file1->next_seq;
 my $seq_obj2 = $bio_file2->next_seq;	
@@ -214,7 +229,9 @@ sub print_result {
 	print "Edit Distance = $score, Identities = $identities_count\/" . ($end1-$start1) . " ($percent\%)\n";
 	
 	my $remaining_length = length($header1) > length($header3) ? 80 - length($header1) - length($footer1) : 80 - length($header3) - length($footer3);
-
+	
+	# make sure that the headers are the same length so that everything lines up
+	
 	while( length($header1) < length($header3) ) {
 		$header1 .= " ";
 	}
