@@ -41,6 +41,7 @@ my %hoxd_scores = (	A => {},
 foreach(@hoxd_lines){ 
 	if($_ =~ /([ACTG]),([ACTG])=(-?\d+)/){
 		$hoxd_scores{$1}{$2} = $3; 	
+		$hoxd_scores{$2}{$1} = $3;
 	}
 }
 
@@ -109,7 +110,7 @@ my @max = ({ i => 0,
 for my $i (1..$length1) {
 	for my $j (1..$length2) {
 	
-		my $score = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]};	
+		my $score = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]};
 		my $diagonal = $matrix[$i-1][$j-1] + $score;
 		my $down_gap = $matrix[$i][$j-1] + $gap_open;
 		my $right_gap = $matrix[$i-1][$j] + $gap_open;
