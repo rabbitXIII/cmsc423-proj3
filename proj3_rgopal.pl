@@ -218,12 +218,12 @@ sub print_result {
 	for my $i (1..$length) {
 		$result_line1 .= $array[0][0-$i];
 		$result_line2 .= $array[1][0-$i];
-		$identities_count++ if ($array[1][0-$i] ne "-");
+		$identities_count++ if ($array[1][0-$i] eq "|");
 		$result_line3 .= $array[2][0-$i];
 	}
-	my $percent = $identities_count / ($end1 - $start1) * 100;
-	print "Edit Distance = $score, Identities = $identities_count\/" . ($end1-$start1) . " ($percent\%)\n";
-	
+	my $longest = ($end1 - $start1) > ($end2 - $start2) ? ($end1 - $start1) : ($end2 - $start2);
+	my $percent = $identities_count / ($longest) * 100;
+	printf "Score = %d, Identities = %d\/%d (%2.0f%%)\n", $score, $identities_count, $longest, $percent;	
 	my $remaining_length = length($header1) > length($header3) ? 80 - length($header1) - length($footer1) : 80 - length($header3) - length($footer3);
 	
 	# make sure that the headers are the same length so that everything lines up
