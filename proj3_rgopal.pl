@@ -59,20 +59,38 @@ my @seq2 = split(//, $seq2);
 	#	7	all		all have same score
 	# use the 1 2 4 method to keep track of traceback
 
+my $right_trace = 1;
+my $diag_trace = 2;
+my $down_trace = 4;
+
 my @matrix = undef;
 my @traceback = undef;
 
+#initialize the matrices
+# this could honestly just be done in a single matrix, but it's easier
+# to read
+for my $index (0..$length1) {
+	for my $index2 (0..$length2) {
+		$matrix[$index][$index2] = 0;
+		$traceback[$index][$index2] = 0;
+	}
+}	
 	# O(n)
 for my $index (0..$length1) {
-	$matrix[$index][0] = $gap_open * $index;
-	$traceback[$index][0] =  1;
+	$traceback[$index][0] =  $right_trace;
 }
 
 	# O(n)
 for my $index (1..$length2) {
-	$matrix[0][$index] = $gap_open * $index;
-	$traceback[0][$index] = 4; 
+	$traceback[0][$index] = $down_trace; 
 }
+
+
+
+
+my @max = ({ i => 0,
+		j => 0,
+		score => 0 });
 
 	#O(n^2) no way around this..? ;(
 for my $i (1..$length1) {
@@ -86,30 +104,45 @@ for my $i (1..$length1) {
 		my $diagonal = $matrix[$i-1][$j-1] + $score;
 		my $down_gap = $matrix[$i][$j-1] + $gap_open;
 		my $right_gap = $matrix[$i-1][$j] + $gap_open;
+		if ($diagonal < 0 && $down_gap < 0 && $right_gap < 0 ) {
+			$matrix[$i][$j] = 0;
+			$traceback[$i][$j] = 0;
+			next; 
+		}
 		if ($right_gap >= $diagonal && $right_gap >= $down_gap) {
 			$matrix[$i][$j] = $right_gap; 
-			$traceback[$i][$j] = 1;
+			$traceback[$i][$j] = $right_trace;
+			$traceback[$i][$j] += $diag_trace if $right_gap == $diagonal;
+			$traceback[$i][$j] += $down_trace if $right_gap == $down_gap;
 		} elsif ($diagonal > $down_gap && $diagonal > $right_gap) { 
 			$matrix[$i][$j] = $diagonal; 
-			$traceback[$i][$j] = 2;
+			$traceback[$i][$j] = $diag_trace;
+			$traceback[$i][$j] += $down_trace if $diagonal == $down_gap;
 		} else { 
 			$matrix[$i][$j]=$down_gap; 
-			$traceback[$i][$j] = 4;
+			$traceback[$i][$j] = $down_trace;
 		}
+		if ( $max[0]{score} < $matrix[$i][$j] ) {
+			@max = undef;
+			@max = ( { i => $i,
+				j => $j,
+				score => $matrix[$i][$j]} );
+		} elsif ($max[0]{score} == $matrix[$i][$j]){
+			push(@max, { i => $i, j => $j, score => $matrix[$i][$j]});
+
+		}
+		
 	}
 }
 
-#print_2d(@matrix);
-#print_2d(@traceback);
-
 #do the traceback
 
-my $i = $length1;
-my $j = $length2;
+my $i = $max[0]{i};
+my $j = $max[0]{j};
 my @result = undef;
 my $index = 0;
 	#we need to print backwards into the array since we don't know how many gaps there are
-while ($i != 0 || $j != 0) {
+while ( ($matrix[$i][$j] != 0) && ($i != 0 || $j != 0)) {
 	$result[1][$index] = " ";
 	if ($traceback[$i][$j] == 2) { #diagonal match / mismatch
 		$result[1][$index] = "|" if ($seq1[$i-1] eq $seq2[$j-1]);
@@ -125,6 +158,7 @@ while ($i != 0 || $j != 0) {
 	$index++;
 }
 my $score = $matrix[-1][-1];
+print "@max\n";
 
 #print out the score and alignment
 print_result($index, $score,  @result);
@@ -135,9 +169,9 @@ print_result($index, $score,  @result);
 
 sub print_2d {
 	my @array_2d=@_;
-	for(my $i = 0; $i <= $length1; $i++){
-	   for(my $j = 0; $j <= $length2 ; $j++){
-	      print "$array_2d[$j][$i]\t";
+	for my $j (0..$length1) {
+		for my $i (0..$length2){
+			print "$array_2d[$j][$i]\t";
 	   }
 	   print "\n";
 	}
