@@ -1,0 +1,14 @@
+Score = 273, Identities = 3/3 (100%), Gaps = 0/3 (3%)
+seq1  1	ATT  3
+      	|||
+seq2  1	ATT  3
+
+Score = 273, Identities = 3/3 (100%), Gaps = 0/3 (3%)
+seq1  6	ATT  8
+      	|||
+seq2  1	ATT  3
+
+Score = 273, Identities = 3/3 (100%), Gaps = 0/3 (3%)
+seq1  11     ATT	13
+      	     |||
+seq2   1     ATT	 3
