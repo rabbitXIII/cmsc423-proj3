@@ -117,29 +117,47 @@ my @max = ({ i => 0,
 for my $i (1..$length1) {
 	for my $j (1..$length2) {
 	
-		my $score = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]};
-		my $diagonal = $matrix[$i-1][$j-1] + $score;
-		my $down_gap = $matrix[$i][$j-1] + $gap_open;
-		my $right_gap = $matrix[$i-1][$j] + $gap_open;
-	
-		if ($diagonal < 0 && $down_gap < 0 && $right_gap < 0 ) {
-			$matrix[$i][$j] = 0;
-			$traceback[$i][$j] = 0;
-			next; 
+		$matrix[$i][$j] = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]} + max( $matrix[$i-1][$j-1],
+						 $matrix_x[$i-1][$j-1],
+						 $matrix_y[$i-1][$j-1] );
+		$matrix_x[$i][$j] = max( $gap_open + $gap_extend + $matrix[$i][$j-1],
+					$gap_extend + $matrix_x[$i][$j-1],
+					$gap_open + $gap_extend + $matrix_y[$i][$j-1] );
+		$matrix_y[$i][$j] = max( $gap_open + $gap_extend + $matrix[$i-1][$j],
+					$gap_extend + $matrix_y[$i-1][$j],
+					$gap_open + $gap_extend + $matrix_x[$i-1][$j] );
+		my $choice = max( $matrix[$i][$j], $matrix_x[$i][$j], $matrix_y[$i][$j]);
+		if ($matrix[$i][$j] == $choice) {
+			$choice = max( $matrix[$i-1][$j-1],$matrix_x[$i-1][$j-1],$matrix_y[$i-1][$j-1] );
+			if( $choice == $matrix[$i-1][$j-1]) {
+				$traceback[$i][$j] = 2;
+			} elsif ($choice == $matrix_x[$i-1][$j-1]) {
+				$traceback[$i][$j] = 4;
+			} else {
+				$traceback[$i][$j] = 1;
+			}
+		} elsif ($matrix_x[$i][$j] == $choice) { 
+			$choice = max( $gap_open + $gap_extend + $matrix[$i-1][$j-1], $gap_extend + $matrix_x[$i-1][$j-1], $gap_open + $gap_extend + $matrix_y[$i-1][$j-1] );
+			if( $choice == $matrix[$i-1][$j-1] + $gap_open + $gap_extend) {
+				$traceback[$i][$j] = 2;
+			} elsif ($choice == $matrix_x[$i-1][$j-1] + $gap_extend) {
+				$traceback[$i][$j] = 4;
+			} else {
+				$traceback[$i][$j] = 1;
+			}
+
+		} else {
+			$choice = max( $gap_open + $gap_extend + $matrix[$i-1][$j-1], $gap_open + $gap_extend + $matrix_x[$i-1][$j-1], $gap_extend + $matrix_y[$i-1][$j-1] );
+			if( $choice == $matrix[$i-1][$j-1] + $gap_open + $gap_extend) {
+				$traceback[$i][$j] = 2;
+			} elsif ($choice == $matrix_x[$i-1][$j-1] + $gap_open + $gap_extend) {
+				$traceback[$i][$j] = 4;
+			} else {
+				$traceback[$i][$j] = 1;	
+			}
+
 		}
-		if ($right_gap >= $diagonal && $right_gap >= $down_gap) {
-			$matrix[$i][$j] = $right_gap; 
-			$traceback[$i][$j] = $right_trace;
-			#$traceback[$i][$j] += $diag_trace if $right_gap == $diagonal;
-			#$traceback[$i][$j] += $down_trace if $right_gap == $down_gap;
-		} elsif ($diagonal > $down_gap && $diagonal > $right_gap) { 
-			$matrix[$i][$j] = $diagonal; 
-			$traceback[$i][$j] = $diag_trace;
-			#$traceback[$i][$j] += $down_trace if $diagonal == $down_gap;
-		} else { 
-			$matrix[$i][$j]=$down_gap; 
-			$traceback[$i][$j] = $down_trace;
-		}
+		# our max score can only end with a match, so we only check matrix
 		if ( $max[0]{score} < $matrix[$i][$j] ) {
 			@max = undef;
 			@max = ( { i => $i,
@@ -210,8 +228,8 @@ sub print_result {
 	my $header1 = $seq_obj1->id . " " . $start1 . " ";
 	my $header2 = " " x length($header1);
 	my $header3 = $seq_obj2->id . " " . $start2 . " ";
-	my $footer1 = " " . $end1;
-	my $footer3 = " " . $end2;
+	my $footer1 = " " . ($end1-1);
+	my $footer3 = " " . ($end2-1);
 
 
 	my $identities_count = 0;
