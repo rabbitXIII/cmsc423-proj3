@@ -6,6 +6,10 @@
 #
 # A local alignment tool for project part 3
 # based off of part 2
+#
+# Accepts a HOXD Matrix and uses affine gap penalties
+# Reports all optimal alignments
+
 
 use warnings;
 use strict;
@@ -46,22 +50,28 @@ my @seq2 = split(//, $seq2);
 
 
 	#the traceback will have the following values
-	#	-1 	left		gap to the right
-	#	0	middle		match / mismatch
-	#	1	up		gap down
+	#	1 	left		gap to the right
+	#	2	middle		match / mismatch
+	#	4	up		gap down
+	#	3	left/middle	gap to right or match/mismatch
+	#	5	left/up		gap right or gap down
+	#	6	middle/up	match/mismatch or gap down
+	#	7	all		all have same score
+	# use the 1 2 4 method to keep track of traceback
+
 my @matrix = undef;
 my @traceback = undef;
 
 	# O(n)
 for my $index (0..$length1) {
 	$matrix[$index][0] = $gap_open * $index;
-	$traceback[$index][0] =  -1;
+	$traceback[$index][0] =  1;
 }
 
 	# O(n)
 for my $index (1..$length2) {
 	$matrix[0][$index] = $gap_open * $index;
-	$traceback[0][$index] = 1; 
+	$traceback[0][$index] = 4; 
 }
 
 	#O(n^2) no way around this..? ;(
@@ -77,14 +87,14 @@ for my $i (1..$length1) {
 		my $down_gap = $matrix[$i][$j-1] + $gap_open;
 		my $right_gap = $matrix[$i-1][$j] + $gap_open;
 		if ($right_gap >= $diagonal && $right_gap >= $down_gap) {
-			$matrix[$i][$j]=$right_gap; 
-			$traceback[$i][$j] = -1;
+			$matrix[$i][$j] = $right_gap; 
+			$traceback[$i][$j] = 1;
 		} elsif ($diagonal > $down_gap && $diagonal > $right_gap) { 
-			$matrix[$i][$j]=$diagonal; 
-			$traceback[$i][$j] = 0;
+			$matrix[$i][$j] = $diagonal; 
+			$traceback[$i][$j] = 2;
 		} else { 
 			$matrix[$i][$j]=$down_gap; 
-			$traceback[$i][$j] = 1;
+			$traceback[$i][$j] = 4;
 		}
 	}
 }
@@ -101,11 +111,11 @@ my $index = 0;
 	#we need to print backwards into the array since we don't know how many gaps there are
 while ($i != 0 || $j != 0) {
 	$result[1][$index] = " ";
-	if ($traceback[$i][$j] == 0) { #diagonal match / mismatch
+	if ($traceback[$i][$j] == 2) { #diagonal match / mismatch
 		$result[1][$index] = "|" if ($seq1[$i-1] eq $seq2[$j-1]);
 		$result[0][$index] = $seq1[--$i];
 		$result[2][$index] = $seq2[--$j];
-	} elsif ($traceback[$i][$j] == -1) {  
+	} elsif ($traceback[$i][$j] == 1) {  
 		$result[0][$index] = $seq1[--$i];
 		$result[2][$index] = "-";
 	} else {
