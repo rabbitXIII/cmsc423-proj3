@@ -195,9 +195,11 @@ sub print_result {
 	my $footer1 = " " . $end1;
 	my $footer3 = " " . $end2;
 
+
+	my $identities_count = 0;
+
 	# print the edit distance
 
-	print "Edit Distance = $score\n";
 
 	my ($result_line1, $result_line2, $result_line3) = (undef, undef, undef);
 	
@@ -205,8 +207,11 @@ sub print_result {
 	for my $i (1..$length) {
 		$result_line1 .= $array[0][0-$i];
 		$result_line2 .= $array[1][0-$i];
+		$identities_count++ if ($array[1][0-$i] ne "-");
 		$result_line3 .= $array[2][0-$i];
 	}
+	my $percent = $identities_count / ($end1 - $start1) * 100;
+	print "Edit Distance = $score, Identities = $identities_count\/" . ($end1-$start1) . " ($percent\%)\n";
 	
 	my $remaining_length = length($header1) > length($header3) ? 80 - length($header1) - length($footer1) : 80 - length($header3) - length($footer3);
 
