@@ -18,10 +18,8 @@ use Bio::SeqIO;
 my $file1 = $ARGV[0];
 my $file2 = $ARGV[1];
 my $hoxd = $ARGV[2];
-my $match = $ARGV[3];
-my $mismatch = $ARGV[4];
-my $gap_open = $ARGV[5];
-my $gap_extend = $ARGV[6];
+my $gap_open = $ARGV[3];
+my $gap_extend = $ARGV[4];
 
 
 #read files into seq objects
@@ -110,12 +108,7 @@ my @max = ({ i => 0,
 	#O(n^2) no way around this..? ;(
 for my $i (1..$length1) {
 	for my $j (1..$length2) {
-		my $score = undef;	
-		if ($seq1[$i-1] eq $seq2[$j-1]) {
-			$score = $match;
-		} else {
-			$score = $mismatch;
-		} 
+		my $score = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]};	
 		my $diagonal = $matrix[$i-1][$j-1] + $score;
 		my $down_gap = $matrix[$i][$j-1] + $gap_open;
 		my $right_gap = $matrix[$i-1][$j] + $gap_open;
