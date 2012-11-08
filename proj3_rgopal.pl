@@ -108,10 +108,12 @@ my @max = ({ i => 0,
 	#O(n^2) no way around this..? ;(
 for my $i (1..$length1) {
 	for my $j (1..$length2) {
+	
 		my $score = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]};	
 		my $diagonal = $matrix[$i-1][$j-1] + $score;
 		my $down_gap = $matrix[$i][$j-1] + $gap_open;
 		my $right_gap = $matrix[$i-1][$j] + $gap_open;
+	
 		if ($diagonal < 0 && $down_gap < 0 && $right_gap < 0 ) {
 			$matrix[$i][$j] = 0;
 			$traceback[$i][$j] = 0;
