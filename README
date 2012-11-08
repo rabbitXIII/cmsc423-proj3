@@ -1,0 +1,29 @@
+Project 2
+Rohit Gopal
+
+CMSC423 0101
+
+
+The files included for this submission are: 
+proj2_rgopal.pl  
+
+
+proj2_rgopal.pl 	This is my submission for the project.  It uses
+			BioPerl for reading in the files and then performs
+			a global alignment on the first sequence in each
+			file passed in as arguments. 
+
+To Run the Project:
+
+./proj2_rgopal.pl <filename> <filename> <match> <mismatch_penalty> <gap_penalty>
+
+
+The output is to stdout, and assumes that the naming schema is 
+
+seq1_id <basepairs>
+	<alignment>
+seq2_id <basepairs>
+
+where seq1_id is the id for the first sequence in the first fasta file and
+seq2_id is the corresponding id for the second sequence.  The output should only
+be up to 80 characters in width. 
