@@ -147,7 +147,6 @@ for my $i (1..$length1) {
 		
 	}
 }
-print_2d(@matrix);
 #do the traceback for each valid sub section
 
 foreach(@max) {

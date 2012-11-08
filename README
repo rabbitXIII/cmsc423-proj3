@@ -15,7 +15,9 @@ proj3_rgopal.pl 	This is my submission for the project.  It uses
 
 To Run the Project:
 
-./proj3_rgopal.pl <filename> <filename> <HOXD2 FILE> <gap_open> <gap_extend>
+./proj3_rgopal.pl <fasta file> <fasta file> <HOXD2 FILE> <gap_open> <gap_extend>
+
+This project reads in the HOXD2 Format.
 
 
 The output is to stdout, and assumes that the naming schema is 
