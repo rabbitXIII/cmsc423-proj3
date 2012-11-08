@@ -112,12 +112,12 @@ for my $i (1..$length1) {
 		if ($right_gap >= $diagonal && $right_gap >= $down_gap) {
 			$matrix[$i][$j] = $right_gap; 
 			$traceback[$i][$j] = $right_trace;
-			$traceback[$i][$j] += $diag_trace if $right_gap == $diagonal;
-			$traceback[$i][$j] += $down_trace if $right_gap == $down_gap;
+			#$traceback[$i][$j] += $diag_trace if $right_gap == $diagonal;
+			#$traceback[$i][$j] += $down_trace if $right_gap == $down_gap;
 		} elsif ($diagonal > $down_gap && $diagonal > $right_gap) { 
 			$matrix[$i][$j] = $diagonal; 
 			$traceback[$i][$j] = $diag_trace;
-			$traceback[$i][$j] += $down_trace if $diagonal == $down_gap;
+			#$traceback[$i][$j] += $down_trace if $diagonal == $down_gap;
 		} else { 
 			$matrix[$i][$j]=$down_gap; 
 			$traceback[$i][$j] = $down_trace;
@@ -135,33 +135,32 @@ for my $i (1..$length1) {
 	}
 }
 
-#do the traceback
+#do the traceback for each valid sub section
 
-my $i = $max[0]{i};
-my $j = $max[0]{j};
-my @result = undef;
-my $index = 0;
-	#we need to print backwards into the array since we don't know how many gaps there are
-while ( ($matrix[$i][$j] != 0) && ($i != 0 || $j != 0)) {
-	$result[1][$index] = " ";
-	if ($traceback[$i][$j] == 2) { #diagonal match / mismatch
-		$result[1][$index] = "|" if ($seq1[$i-1] eq $seq2[$j-1]);
-		$result[0][$index] = $seq1[--$i];
-		$result[2][$index] = $seq2[--$j];
-	} elsif ($traceback[$i][$j] == 1) {  
-		$result[0][$index] = $seq1[--$i];
-		$result[2][$index] = "-";
-	} else {
-		$result[0][$index] = "-";
-		$result[2][$index] = $seq2[--$j];
+foreach(@max) {
+	my ($i, $j, $score) = ($_->{i}, $_->{j}, $_->{score});	
+	my @result = undef;
+	my $index = 0;
+		#we need to print backwards into the array since we don't know how many gaps there are
+	while ( ($matrix[$i][$j] != 0) && ($i != 0 || $j != 0)) {
+		$result[1][$index] = " ";
+		if ($traceback[$i][$j] == 2) { #diagonal match / mismatch
+			$result[1][$index] = "|" if ($seq1[$i-1] eq $seq2[$j-1]);
+			$result[0][$index] = $seq1[--$i];
+			$result[2][$index] = $seq2[--$j];
+		} elsif ($traceback[$i][$j] == 1) {  
+			$result[0][$index] = $seq1[--$i];
+			$result[2][$index] = "-";
+		} else {
+			$result[0][$index] = "-";
+			$result[2][$index] = $seq2[--$j];
+		}
+		$index++;
 	}
-	$index++;
-}
-my $score = $matrix[-1][-1];
-print "@max\n";
 
-#print out the score and alignment
-print_result($index, $score,  @result);
+	#print out the score and alignment
+	print_result($index, $score,  @result);
+}
 
 #######################################
 #           extra functions           #
@@ -192,7 +191,7 @@ sub print_result {
 	my ($result_line1, $result_line2, $result_line3) = (undef, undef, undef);
 	
 	
-	for $i (1..$length) {
+	for my $i (1..$length) {
 		$result_line1 .= $array[0][0-$i];
 		$result_line2 .= $array[1][0-$i];
 		$result_line3 .= $array[2][0-$i];
