@@ -14,6 +14,7 @@
 use warnings;
 use strict;
 use Bio::SeqIO;
+use List::Util qw[min max];
 
 my $file1 = $ARGV[0];
 my $file2 = $ARGV[1];
@@ -79,6 +80,8 @@ my $down_trace = 4;
 
 my @matrix = undef;
 my @traceback = undef;
+my @matrix_x = undef;
+my @matrix_y = undef;
 
 #initialize the matrices
 # this could honestly just be done in a single matrix, but it's easier
@@ -87,16 +90,20 @@ for my $index (0..$length1) {
 	for my $index2 (0..$length2) {
 		$matrix[$index][$index2] = 0;
 		$traceback[$index][$index2] = 0;
+		$matrix_x[$index][$index2] = 0;
+		$matrix_y[$index][$index2] = 0;
 	}
 }	
 	# O(n)
-for my $index (0..$length1) {
+for my $index (1..$length1) {
 	$traceback[$index][0] =  $right_trace;
+	$matrix_x[$index][0] = $gap_open + $index * $gap_extend;
 }
 
 	# O(n)
 for my $index (1..$length2) {
 	$traceback[0][$index] = $down_trace; 
+	$matrix_y[0][$index] = $gap_open + $index * $gap_extend;
 }
 
 
@@ -221,7 +228,7 @@ sub print_result {
 		$identities_count++ if ($array[1][0-$i] eq "|");
 		$result_line3 .= $array[2][0-$i];
 	}
-	my $longest = ($end1 - $start1) > ($end2 - $start2) ? ($end1 - $start1) : ($end2 - $start2);
+	my $longest = max($end1 - $start1, $end2 - $start2);
 	my $percent = $identities_count / ($longest) * 100;
 	printf "Score = %d, Identities = %d\/%d (%2.0f%%)\n", $score, $identities_count, $longest, $percent;	
 	my $remaining_length = length($header1) > length($header3) ? 80 - length($header1) - length($footer1) : 80 - length($header3) - length($footer3);
