@@ -128,34 +128,11 @@ for my $i (1..$length1) {
 					$gap_open + $gap_extend + $matrix_x[$i-1][$j] );
 		my $choice = max( $matrix[$i][$j], $matrix_x[$i][$j], $matrix_y[$i][$j]);
 		if ($matrix[$i][$j] == $choice) {
-			$choice = max( $matrix[$i-1][$j-1],$matrix_x[$i-1][$j-1],$matrix_y[$i-1][$j-1] );
-			if( $choice == $matrix[$i-1][$j-1]) {
-				$traceback[$i][$j] = 2;
-			} elsif ($choice == $matrix_x[$i-1][$j-1]) {
-				$traceback[$i][$j] = 4;
-			} else {
-				$traceback[$i][$j] = 1;
-			}
+			$traceback[$i][$j] = 2;
 		} elsif ($matrix_x[$i][$j] == $choice) { 
-			$choice = max( $gap_open + $gap_extend + $matrix[$i-1][$j-1], $gap_extend + $matrix_x[$i-1][$j-1], $gap_open + $gap_extend + $matrix_y[$i-1][$j-1] );
-			if( $choice == $matrix[$i-1][$j-1] + $gap_open + $gap_extend) {
-				$traceback[$i][$j] = 2;
-			} elsif ($choice == $matrix_x[$i-1][$j-1] + $gap_extend) {
-				$traceback[$i][$j] = 4;
-			} else {
-				$traceback[$i][$j] = 1;
-			}
-
+			$traceback[$i][$j] = 4;
 		} else {
-			$choice = max( $gap_open + $gap_extend + $matrix[$i-1][$j-1], $gap_open + $gap_extend + $matrix_x[$i-1][$j-1], $gap_extend + $matrix_y[$i-1][$j-1] );
-			if( $choice == $matrix[$i-1][$j-1] + $gap_open + $gap_extend) {
-				$traceback[$i][$j] = 2;
-			} elsif ($choice == $matrix_x[$i-1][$j-1] + $gap_open + $gap_extend) {
-				$traceback[$i][$j] = 4;
-			} else {
-				$traceback[$i][$j] = 1;	
-			}
-
+			$traceback[$i][$j] = 1;	
 		}
 		# our max score can only end with a match, so we only check matrix
 		if ( $max[0]{score} < $matrix[$i][$j] ) {
@@ -170,7 +147,7 @@ for my $i (1..$length1) {
 		
 	}
 }
-
+print_2d(@matrix);
 #do the traceback for each valid sub section
 
 foreach(@max) {
