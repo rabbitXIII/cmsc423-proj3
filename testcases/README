@@ -1,0 +1,3 @@
+HOXD matrix used for match/mismatch scores
+AFFINE gap penalties: Gap Open = -200, Gap Extend = -20
+Identities are reported w.r.t longest sequence
