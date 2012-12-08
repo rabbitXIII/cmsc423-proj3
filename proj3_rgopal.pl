@@ -40,9 +40,11 @@ my %hoxd_scores = (	A => {},
 			G => {});
 
 foreach(@hoxd_lines){ 
-	if($_ =~ /([ACTG]),([ACTG])=(-?\d+)/){
-		$hoxd_scores{$1}{$2} = $3; 	
-		$hoxd_scores{$2}{$1} = $3;
+	if($_ =~ /([ACTGactg]),([ACTGactg])=(-?\d+)/){
+		$hoxd_scores{lc($1)}{lc($2)} = $3; 	
+		$hoxd_scores{lc($2)}{lc($1)} = $3;
+		$hoxd_scores{uc($1)}{uc($2)} = $3; 	
+		$hoxd_scores{uc($2)}{uc($1)} = $3;
 	}
 }
 
@@ -116,7 +118,6 @@ my @max = ({ i => 0,
 	#O(n^2) no way around this..? ;(
 for my $i (1..$length1) {
 	for my $j (1..$length2) {
-	
 		$matrix[$i][$j] = $hoxd_scores{$seq1[$i-1]}{$seq2[$j-1]} + max( $matrix[$i-1][$j-1],
 						 $matrix_x[$i-1][$j-1],
 						 $matrix_y[$i-1][$j-1] );
